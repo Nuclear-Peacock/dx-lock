@@ -61,7 +61,7 @@ export default function Navigation({ profile }: NavigationProps) {
           <div className="hidden sm:flex items-center gap-3 text-right">
             <div>
               <p className="text-sm font-medium text-text-primary leading-none">
-                {profile.firstNameInitial}{profile.lastNameInitial}
+                {profile.displayAlias}
               </p>
               <p className="text-[10px] text-text-secondary capitalize mt-1 font-semibold tracking-wider">{profile.role}</p>
             </div>
@@ -108,7 +108,7 @@ export default function Navigation({ profile }: NavigationProps) {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-text-primary">
-                    {profile.firstNameInitial}{profile.lastNameInitial}
+                    {profile.displayAlias}
                   </p>
                   <p className="text-[10px] text-text-secondary capitalize font-semibold tracking-wider">{profile.role}</p>
                 </div>

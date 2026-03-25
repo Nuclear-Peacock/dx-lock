@@ -14,6 +14,7 @@ export default function ActiveGame({ profile }: ActiveGameProps) {
   const { sessionId } = useParams<{ sessionId: string }>();
   const [session, setSession] = useState<Session | null>(null);
   const [team, setTeam] = useState<Team | null>(null);
+  const [teamMembers, setTeamMembers] = useState<UserProfile[]>([]);
   const [currentCase, setCurrentCase] = useState<Case>(CARDIAC_AMYLOID_CASE);
   const [individualAnswer, setIndividualAnswer] = useState('');
   const [teamLock, setTeamLock] = useState({
@@ -33,13 +34,23 @@ export default function ActiveGame({ profile }: ActiveGameProps) {
     });
 
     const teamsQuery = query(collection(db, 'teams'), where('sessionId', '==', sessionId), where('memberIds', 'array-contains', profile.uid));
-    const unsubscribeTeams = onSnapshot(teamsQuery, (snapshot) => {
+    const unsubscribeTeams = onSnapshot(teamsQuery, async (snapshot) => {
       if (!snapshot.empty) {
         const teamData = { id: snapshot.docs[0].id, ...snapshot.docs[0].data() } as Team;
         setTeam(teamData);
         if (teamData.lockedContent) {
           setTeamLock(teamData.lockedContent);
         }
+
+        // Fetch member profiles
+        const memberProfiles: UserProfile[] = [];
+        for (const memberId of teamData.memberIds) {
+          const memberDoc = await getDocs(query(collection(db, 'users'), where('uid', '==', memberId)));
+          if (!memberDoc.empty) {
+            memberProfiles.push(memberDoc.docs[0].data() as UserProfile);
+          }
+        }
+        setTeamMembers(memberProfiles);
       }
     });
 
@@ -216,9 +227,16 @@ export default function ActiveGame({ profile }: ActiveGameProps) {
             <h3 className="text-sm font-medium">Team Members</h3>
           </div>
           <div className="flex flex-wrap gap-2">
-            {team.memberIds.map(id => (
-              <div key={id} className="px-3 py-1.5 bg-surface border border-line rounded-full text-xs font-medium text-secondary">
-                User {id.slice(0, 4)}
+            {teamMembers.map(member => (
+              <div 
+                key={member.uid} 
+                className="px-3 py-1.5 bg-surface border border-line rounded-full text-xs font-medium text-primary flex items-center gap-2"
+              >
+                <div 
+                  className="w-4 h-4 rounded-full"
+                  style={{ backgroundColor: member.favoriteColor }}
+                />
+                {member.displayAlias}
               </div>
             ))}
           </div>

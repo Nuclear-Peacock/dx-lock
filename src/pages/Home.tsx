@@ -35,7 +35,7 @@ export default function Home({ user, profile }: HomeProps) {
               </div>
               <div>
                 <p className="text-lg font-medium text-primary">
-                  {profile?.firstNameInitial}{profile?.lastNameInitial}
+                  {profile?.displayAlias || `${profile?.firstNameInitial}${profile?.lastNameInitial}`}
                 </p>
                 <p className="text-xs text-secondary font-mono uppercase">
                   {profile?.favoriteColor}

@@ -26,13 +26,16 @@ export default function Signup() {
 
       const firstNameInitial = cleanCode.charAt(0).toUpperCase();
       const lastNameInitial = cleanCode.charAt(1).toUpperCase();
-      const favoriteColor = cleanCode.slice(2).toLowerCase();
+      const rawColor = cleanCode.slice(2);
+      const favoriteColor = rawColor.toLowerCase();
+      const displayAlias = `${firstNameInitial}${lastNameInitial} ${rawColor.charAt(0).toUpperCase()}${rawColor.slice(1).toLowerCase()}`;
 
       const newProfile: UserProfile = {
         uid: user.uid,
         firstNameInitial,
         lastNameInitial,
         favoriteColor,
+        displayAlias,
         role: 'participant',
       };
 

@@ -5,6 +5,7 @@ export interface UserProfile {
   firstNameInitial: string;
   lastNameInitial: string;
   favoriteColor: string;
+  displayAlias: string;
   role: UserRole;
 }
 

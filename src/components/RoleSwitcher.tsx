@@ -34,7 +34,7 @@ export default function RoleSwitcher({ profile }: RoleSwitcherProps) {
           >
             {profile.firstNameInitial}{profile.lastNameInitial}
           </div>
-          <span className="text-xs font-medium text-primary uppercase">{profile.firstNameInitial}{profile.lastNameInitial}</span>
+          <span className="text-xs font-medium text-primary uppercase">{profile.displayAlias}</span>
         </div>
         {roles.map(item => {
           const Icon = item.icon;

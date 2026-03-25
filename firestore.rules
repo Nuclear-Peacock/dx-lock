@@ -12,6 +12,7 @@ service cloud.firestore {
     //   - firstNameInitial: string (required, size == 1)
     //   - lastNameInitial: string (required, size == 1)
     //   - favoriteColor: string (required)
+    //   - displayAlias: string (required)
     //   - role: string (required, enum: educator, participant, observer)
     //
     // Collection: sessions
@@ -105,10 +106,10 @@ service cloud.firestore {
     match /users/{userId} {
       allow read: if isAuthenticated();
       allow create: if isOwner(userId) && 
-                      hasRequiredFields(['uid', 'firstNameInitial', 'lastNameInitial', 'favoriteColor', 'role']) &&
+                      hasRequiredFields(['uid', 'firstNameInitial', 'lastNameInitial', 'favoriteColor', 'displayAlias', 'role']) &&
                       request.resource.data.role in ['participant', 'observer'];
       allow update: if isOwner(userId) && 
-                      hasOnlyAllowedFields(['uid', 'firstNameInitial', 'lastNameInitial', 'favoriteColor', 'role']) &&
+                      hasOnlyAllowedFields(['uid', 'firstNameInitial', 'lastNameInitial', 'favoriteColor', 'displayAlias', 'role']) &&
                       request.resource.data.uid == resource.data.uid;
     }
 

@@ -9,9 +9,10 @@
         "firstNameInitial": { "type": "string" },
         "lastNameInitial": { "type": "string" },
         "favoriteColor": { "type": "string" },
+        "displayAlias": { "type": "string" },
         "role": { "type": "string", "enum": ["educator", "participant", "observer"] }
       },
-      "required": ["uid", "firstNameInitial", "lastNameInitial", "favoriteColor", "role"]
+      "required": ["uid", "firstNameInitial", "lastNameInitial", "favoriteColor", "displayAlias", "role"]
     },
     "Session": {
       "title": "Session",

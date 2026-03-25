@@ -1,15 +1,16 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { db } from '../firebase';
-import { collection, query, where, onSnapshot, orderBy, doc } from 'firebase/firestore';
-import { Score, Session, Team } from '../types';
+import { collection, query, where, onSnapshot, orderBy, doc, getDocs } from 'firebase/firestore';
+import { Score, Session, Team, UserProfile } from '../types';
 import { Trophy, Medal, Star, Users, User } from 'lucide-react';
 
 export default function Leaderboard() {
   const { sessionId } = useParams<{ sessionId: string }>();
-  const [session, setSession] = useState<Session | null>(null);
   const [scores, setScores] = useState<Score[]>([]);
   const [teams, setTeams] = useState<Team[]>([]);
+  const [userProfiles, setUserProfiles] = useState<Record<string, UserProfile>>({});
+  const [session, setSession] = useState<Session | null>(null);
 
   useEffect(() => {
     if (!sessionId) return;
@@ -20,9 +21,22 @@ export default function Leaderboard() {
     });
 
     const q = query(collection(db, 'scores'), where('sessionId', '==', sessionId), orderBy('totalScore', 'desc'));
-    const unsubscribeScores = onSnapshot(q, (snapshot) => {
+    const unsubscribeScores = onSnapshot(q, async (snapshot) => {
       const scoreList = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Score));
       setScores(scoreList);
+
+      // Fetch user profiles for individual scores
+      const individualScores = scoreList.filter(s => s.targetType === 'individual');
+      const profiles: Record<string, UserProfile> = { ...userProfiles };
+      for (const score of individualScores) {
+        if (!profiles[score.targetId]) {
+          const userSnap = await getDocs(query(collection(db, 'users'), where('uid', '==', score.targetId)));
+          if (!userSnap.empty) {
+            profiles[score.targetId] = userSnap.docs[0].data() as UserProfile;
+          }
+        }
+      }
+      setUserProfiles(profiles);
     });
 
     const teamsQuery = query(collection(db, 'teams'), where('sessionId', '==', sessionId));
@@ -42,7 +56,8 @@ export default function Leaderboard() {
     if (score.targetType === 'team') {
       return teams.find(t => t.id === score.targetId)?.name || 'Unknown Team';
     }
-    return `User ${score.targetId.slice(0, 4)}`;
+    const profile = userProfiles[score.targetId];
+    return profile?.displayAlias || `User ${score.targetId.slice(0, 4)}`;
   };
 
   if (!session) return <div className="p-8 text-center text-secondary">Loading Leaderboard...</div>;
