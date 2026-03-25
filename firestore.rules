@@ -107,10 +107,11 @@ service cloud.firestore {
       allow read: if isAuthenticated();
       allow create: if isOwner(userId) && 
                       hasRequiredFields(['uid', 'firstNameInitial', 'lastNameInitial', 'favoriteColor', 'displayAlias', 'role']) &&
-                      request.resource.data.role in ['participant', 'observer'];
+                      (request.resource.data.role in ['participant', 'observer'] || isAdmin());
       allow update: if isOwner(userId) && 
                       hasOnlyAllowedFields(['uid', 'firstNameInitial', 'lastNameInitial', 'favoriteColor', 'displayAlias', 'role']) &&
-                      request.resource.data.uid == resource.data.uid;
+                      request.resource.data.uid == resource.data.uid &&
+                      (request.resource.data.role == resource.data.role || isAdmin());
     }
 
     match /sessions/{sessionId} {

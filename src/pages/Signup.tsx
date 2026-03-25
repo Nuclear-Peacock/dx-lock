@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { auth, signInAnonymously, db } from '../firebase';
-import { doc, setDoc } from 'firebase/firestore';
-import { UserPlus, Lock, User, Palette, AlertCircle } from 'lucide-react';
+import { auth, signInAnonymously, db, signInWithPopup, googleProvider } from '../firebase';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { UserPlus, Lock, User, Palette, AlertCircle, Shield } from 'lucide-react';
 import { UserProfile } from '../types';
 
 export default function Signup() {
@@ -10,6 +10,38 @@ export default function Signup() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
+  const handleEducatorLogin = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      const user = result.user;
+      
+      if (user.email !== 'justin.g.peacock@gmail.com') {
+        throw new Error('Unauthorized: Only authorized educators can sign in here.');
+      }
+
+      const userDoc = await getDoc(doc(db, 'users', user.uid));
+      if (!userDoc.exists()) {
+        const newProfile: UserProfile = {
+          uid: user.uid,
+          firstNameInitial: 'J',
+          lastNameInitial: 'P',
+          favoriteColor: 'orange',
+          displayAlias: 'Justin Peacock',
+          role: 'educator',
+        };
+        await setDoc(doc(db, 'users', user.uid), newProfile);
+      }
+      navigate('/');
+    } catch (err: any) {
+      console.error(err);
+      setError(err.message || 'Failed to sign in as educator.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleJoin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -117,6 +149,24 @@ export default function Signup() {
               {loading ? 'Joining...' : 'Join Session'}
             </button>
           </form>
+
+          <div className="relative py-4">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-line"></div>
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-surface px-2 text-secondary font-medium">Educators Only</span>
+            </div>
+          </div>
+
+          <button
+            onClick={handleEducatorLogin}
+            disabled={loading}
+            className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl border border-line bg-white text-sm font-semibold text-primary hover:bg-gray-50 transition-all"
+          >
+            <Shield size={18} className="text-brand" />
+            Sign in as Educator
+          </button>
         </div>
       </div>
     </div>

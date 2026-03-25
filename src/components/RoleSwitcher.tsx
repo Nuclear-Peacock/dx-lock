@@ -1,5 +1,5 @@
 import { UserProfile, UserRole } from '../types';
-import { db } from '../firebase';
+import { db, auth } from '../firebase';
 import { doc, updateDoc } from 'firebase/firestore';
 import { Shield, Users, Eye, RefreshCw } from 'lucide-react';
 
@@ -8,7 +8,9 @@ interface RoleSwitcherProps {
 }
 
 export default function RoleSwitcher({ profile }: RoleSwitcherProps) {
-  if (!profile) return null;
+  const isAdmin = auth.currentUser?.email === 'justin.g.peacock@gmail.com';
+  
+  if (!profile || !isAdmin) return null;
 
   const roles: { role: UserRole; icon: any; color: string }[] = [
     { role: 'educator', icon: Shield, color: 'text-brand' },
