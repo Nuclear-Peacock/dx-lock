@@ -1,0 +1,120 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile and role information.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "displayName": { "type": "string" },
+        "email": { "type": "string" },
+        "role": { "type": "string", "enum": ["educator", "participant", "observer"] }
+      },
+      "required": ["uid", "displayName", "email", "role"]
+    },
+    "Session": {
+      "title": "Session",
+      "description": "A radiology teaching session.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "educatorId": { "type": "string" },
+        "status": { "type": "string", "enum": ["setup", "active", "completed"] },
+        "currentCaseIndex": { "type": "number" },
+        "currentRevealIndex": { "type": "number" },
+        "isSubmissionOpen": { "type": "boolean" },
+        "isTeamLockOpen": { "type": "boolean" },
+        "caseIds": { "type": "array", "items": { "type": "string" } },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "name", "educatorId", "status", "currentCaseIndex", "currentRevealIndex", "isSubmissionOpen", "isTeamLockOpen", "caseIds"]
+    },
+    "Case": {
+      "title": "Case",
+      "description": "A radiology case with multiple reveals.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "reveals": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "type": { "type": "string", "enum": ["image", "static", "external"] },
+              "url": { "type": "string" },
+              "attribution": { "type": "string" },
+              "label": { "type": "string" }
+            }
+          }
+        },
+        "correctDiagnosis": { "type": "string" },
+        "management": { "type": "string" }
+      },
+      "required": ["id", "title", "reveals"]
+    },
+    "Team": {
+      "title": "Team",
+      "description": "A team of participants in a session.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "sessionId": { "type": "string" },
+        "name": { "type": "string" },
+        "memberIds": { "type": "array", "items": { "type": "string" } },
+        "lockedContent": {
+          "type": "object",
+          "properties": {
+            "findings": { "type": "string" },
+            "differential": { "type": "string" },
+            "topDiagnosis": { "type": "string" },
+            "management": { "type": "string" },
+            "revealLockedAt": { "type": "number" }
+          }
+        }
+      },
+      "required": ["id", "sessionId", "name", "memberIds"]
+    },
+    "Submission": {
+      "title": "Submission",
+      "description": "Individual participant submission for a case.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "sessionId": { "type": "string" },
+        "caseId": { "type": "string" },
+        "userId": { "type": "string" },
+        "teamId": { "type": "string" },
+        "content": { "type": "string" },
+        "submittedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "sessionId", "caseId", "userId", "teamId", "content"]
+    },
+    "Score": {
+      "title": "Score",
+      "description": "Final scores for a team or individual.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "sessionId": { "type": "string" },
+        "targetId": { "type": "string" },
+        "targetType": { "type": "string", "enum": ["individual", "team"] },
+        "individualScore": { "type": "number" },
+        "teamContentScore": { "type": "number" },
+        "hotSeatScore": { "type": "number" },
+        "lockBonus": { "type": "number" },
+        "totalScore": { "type": "number" }
+      },
+      "required": ["id", "sessionId", "targetId", "targetType", "totalScore"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": { "schema": "User", "description": "User profiles." },
+    "/sessions/{sessionId}": { "schema": "Session", "description": "Teaching sessions." },
+    "/cases/{caseId}": { "schema": "Case", "description": "Radiology cases." },
+    "/teams/{teamId}": { "schema": "Team", "description": "Teams within sessions." },
+    "/submissions/{submissionId}": { "schema": "Submission", "description": "Individual answers." },
+    "/scores/{scoreId}": { "schema": "Score", "description": "Final scores." }
+  }
+}

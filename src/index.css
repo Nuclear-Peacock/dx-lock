@@ -1,0 +1,58 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", system-ui, sans-serif;
+  
+  --color-brand: #007AFF; /* Apple Blue */
+  --color-brand-hover: #0056b3;
+  --color-surface: #FFFFFF;
+  --color-background: #F2F2F7; /* iOS system background */
+  --color-line: #E5E5EA;
+  --color-text-primary: #1C1C1E;
+  --color-text-secondary: #8E8E93;
+  --color-success: #34C759;
+  --color-danger: #FF3B30;
+  --color-warning: #FF9500;
+}
+
+@layer base {
+  body {
+    @apply bg-background text-text-primary antialiased selection:bg-brand/30;
+    font-family: var(--font-sans);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-sans font-semibold tracking-tight text-text-primary;
+  }
+}
+
+@layer components {
+  .apple-card {
+    @apply bg-surface rounded-2xl shadow-sm border border-line overflow-hidden;
+  }
+
+  .btn-primary {
+    @apply bg-brand text-white font-semibold px-5 py-2.5 rounded-xl transition-all hover:bg-brand-hover active:scale-95 disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-2;
+  }
+
+  .btn-secondary {
+    @apply bg-gray-100 text-text-primary font-semibold px-5 py-2.5 rounded-xl transition-all hover:bg-gray-200 active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2;
+  }
+
+  .btn-danger {
+    @apply bg-danger/10 text-danger font-semibold px-5 py-2.5 rounded-xl transition-all hover:bg-danger/20 active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2;
+  }
+
+  .badge {
+    @apply px-2.5 py-1 rounded-full text-xs font-medium;
+  }
+  
+  .badge-blue { @apply bg-brand/10 text-brand; }
+  .badge-green { @apply bg-success/10 text-success; }
+  .badge-gray { @apply bg-gray-100 text-text-secondary; }
+
+  .input-field {
+    @apply w-full bg-gray-50 border border-line rounded-xl p-3.5 text-sm focus:bg-white focus:border-brand focus:ring-2 focus:ring-brand/20 outline-none transition-all text-text-primary placeholder:text-text-secondary;
+  }
+}

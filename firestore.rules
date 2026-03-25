@@ -1,0 +1,151 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: users
+    // Document ID: userId (uid)
+    // Fields:
+    //   - uid: string (required, immutable)
+    //   - displayName: string (required)
+    //   - email: string (required, email format)
+    //   - role: string (required, enum: educator, participant, observer)
+    //
+    // Collection: sessions
+    // Document ID: sessionId
+    // Fields:
+    //   - id: string (required, immutable)
+    //   - name: string (required, size < 100)
+    //   - educatorId: string (required, immutable)
+    //   - status: string (required, enum: setup, active, completed)
+    //   - currentCaseIndex: number (required)
+    //   - currentRevealIndex: number (required)
+    //   - isSubmissionOpen: boolean (required)
+    //   - isTeamLockOpen: boolean (required)
+    //   - caseIds: list (required, size < 50)
+    //   - createdAt: timestamp (required, immutable)
+    //
+    // Collection: cases
+    // Document ID: caseId
+    // Fields:
+    //   - id: string (required, immutable)
+    //   - title: string (required, size < 200)
+    //   - reveals: list (required, size < 10)
+    //   - correctDiagnosis: string (optional)
+    //   - management: string (optional)
+    //
+    // Collection: teams
+    // Document ID: teamId
+    // Fields:
+    //   - id: string (required, immutable)
+    //   - sessionId: string (required, immutable)
+    //   - name: string (required, size < 50)
+    //   - memberIds: list (required, size < 20)
+    //   - lockedContent: map (optional, size < 10)
+    //
+    // Collection: submissions
+    // Document ID: submissionId
+    // Fields:
+    //   - id: string (required, immutable)
+    //   - sessionId: string (required, immutable)
+    //   - caseId: string (required, immutable)
+    //   - userId: string (required, immutable)
+    //   - teamId: string (required, immutable)
+    //   - content: string (required, size < 5000)
+    //   - submittedAt: timestamp (required, immutable)
+    //
+    // Collection: scores
+    // Document ID: scoreId
+    // Fields:
+    //   - id: string (required, immutable)
+    //   - sessionId: string (required, immutable)
+    //   - targetId: string (required, immutable)
+    //   - targetType: string (required, enum: individual, team)
+    //   - totalScore: number (required)
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() &&
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'educator' ||
+          (request.auth.token.email == "justin.g.peacock@gmail.com" && request.auth.token.email_verified == true));
+    }
+
+    function isValidEmail(email) {
+      return email is string && email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+    }
+
+    function hasOnlyAllowedFields(fields) {
+      return request.resource.data.keys().hasOnly(fields);
+    }
+
+    function hasRequiredFields(fields) {
+      return request.resource.data.keys().hasAll(fields);
+    }
+
+    // ===============================================================
+    // Collection Rules
+    // ===============================================================
+
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow create: if isOwner(userId) && 
+                      hasRequiredFields(['uid', 'displayName', 'email', 'role']) &&
+                      request.resource.data.role in ['participant', 'observer'] &&
+                      isValidEmail(request.resource.data.email);
+      allow update: if isOwner(userId) && 
+                      hasOnlyAllowedFields(['uid', 'displayName', 'email', 'role']) &&
+                      request.resource.data.uid == resource.data.uid &&
+                      (request.resource.data.role == resource.data.role || isAdmin());
+    }
+
+    match /sessions/{sessionId} {
+      allow read: if isAuthenticated();
+      allow create: if isAdmin() && 
+                      hasRequiredFields(['id', 'name', 'educatorId', 'status', 'currentCaseIndex', 'currentRevealIndex', 'isSubmissionOpen', 'isTeamLockOpen', 'caseIds', 'createdAt']) &&
+                      request.resource.data.educatorId == request.auth.uid;
+      allow update: if isAdmin() && 
+                      request.resource.data.educatorId == resource.data.educatorId;
+    }
+
+    match /cases/{caseId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    match /teams/{teamId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && 
+                      hasRequiredFields(['id', 'sessionId', 'name', 'memberIds']);
+      allow update: if isAuthenticated() && 
+                      (request.auth.uid in resource.data.memberIds || isAdmin());
+    }
+
+    match /submissions/{submissionId} {
+      allow read: if isAuthenticated() && 
+                    (request.auth.uid == resource.data.userId || isAdmin());
+      allow create: if isAuthenticated() && 
+                      request.resource.data.userId == request.auth.uid &&
+                      get(/databases/$(database)/documents/sessions/$(request.resource.data.sessionId)).data.isSubmissionOpen == true;
+    }
+
+    match /scores/{scoreId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+  }
+}
