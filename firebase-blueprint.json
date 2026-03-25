@@ -6,11 +6,12 @@
       "type": "object",
       "properties": {
         "uid": { "type": "string" },
-        "displayName": { "type": "string" },
-        "email": { "type": "string" },
+        "firstNameInitial": { "type": "string" },
+        "lastNameInitial": { "type": "string" },
+        "favoriteColor": { "type": "string" },
         "role": { "type": "string", "enum": ["educator", "participant", "observer"] }
       },
-      "required": ["uid", "displayName", "email", "role"]
+      "required": ["uid", "firstNameInitial", "lastNameInitial", "favoriteColor", "role"]
     },
     "Session": {
       "title": "Session",

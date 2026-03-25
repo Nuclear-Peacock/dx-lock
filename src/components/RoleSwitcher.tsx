@@ -27,6 +27,15 @@ export default function RoleSwitcher({ profile }: RoleSwitcherProps) {
     <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-2 group">
       <div className="hidden group-hover:flex flex-col gap-1 apple-card p-2 shadow-xl animate-in slide-in-from-bottom-4">
         <p className="text-[10px] font-semibold text-secondary uppercase tracking-wider px-2 pb-2 border-b border-line mb-1">Switch Role (Dev Mode)</p>
+        <div className="px-3 py-2 border-b border-line mb-1 flex items-center gap-2">
+          <div 
+            className="w-6 h-6 rounded-full flex items-center justify-center text-white font-bold text-[10px]"
+            style={{ backgroundColor: profile.favoriteColor }}
+          >
+            {profile.firstNameInitial}{profile.lastNameInitial}
+          </div>
+          <span className="text-xs font-medium text-primary uppercase">{profile.firstNameInitial}{profile.lastNameInitial}</span>
+        </div>
         {roles.map(item => {
           const Icon = item.icon;
           const isActive = profile.role === item.role;

@@ -26,8 +26,22 @@ export default function Home({ user, profile }: HomeProps) {
         <div className="space-y-6">
           <div className="apple-card p-6 space-y-2 text-left">
             <p className="text-xs font-medium text-secondary uppercase tracking-wider">Authenticated as</p>
-            <p className="text-lg font-medium text-primary">{profile?.displayName || user.email}</p>
-            <p className="text-sm text-secondary">{user.email}</p>
+            <div className="flex items-center gap-3">
+              <div 
+                className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-sm"
+                style={{ backgroundColor: profile?.favoriteColor || '#4F46E5' }}
+              >
+                {profile?.firstNameInitial || '?'}{profile?.lastNameInitial || '?'}
+              </div>
+              <div>
+                <p className="text-lg font-medium text-primary">
+                  {profile?.firstNameInitial}{profile?.lastNameInitial}
+                </p>
+                <p className="text-xs text-secondary font-mono uppercase">
+                  {profile?.favoriteColor}
+                </p>
+              </div>
+            </div>
             <div className="pt-2">
               <span className="badge badge-blue">
                 {profile?.role || 'participant'}

@@ -58,9 +58,19 @@ export default function Navigation({ profile }: NavigationProps) {
         </div>
 
         <div className="flex items-center gap-4">
-          <div className="hidden sm:block text-right">
-            <p className="text-sm font-medium text-text-primary leading-none">{profile.displayName}</p>
-            <p className="text-xs text-text-secondary capitalize mt-1">{profile.role}</p>
+          <div className="hidden sm:flex items-center gap-3 text-right">
+            <div>
+              <p className="text-sm font-medium text-text-primary leading-none">
+                {profile.firstNameInitial}{profile.lastNameInitial}
+              </p>
+              <p className="text-[10px] text-text-secondary capitalize mt-1 font-semibold tracking-wider">{profile.role}</p>
+            </div>
+            <div 
+              className="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-xs shadow-sm"
+              style={{ backgroundColor: profile.favoriteColor }}
+            >
+              {profile.firstNameInitial}{profile.lastNameInitial}
+            </div>
           </div>
           <button
             onClick={logout}
@@ -89,6 +99,20 @@ export default function Navigation({ profile }: NavigationProps) {
             className="absolute top-16 left-0 right-0 bg-surface border-b border-line p-4 md:hidden shadow-lg"
           >
             <div className="flex flex-col gap-2">
+              <div className="flex items-center gap-3 p-3 border-b border-line mb-2">
+                <div 
+                  className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-sm"
+                  style={{ backgroundColor: profile.favoriteColor }}
+                >
+                  {profile.firstNameInitial}{profile.lastNameInitial}
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-text-primary">
+                    {profile.firstNameInitial}{profile.lastNameInitial}
+                  </p>
+                  <p className="text-[10px] text-text-secondary capitalize font-semibold tracking-wider">{profile.role}</p>
+                </div>
+              </div>
               {navItems.map(item => {
                 if (item.role && profile.role !== item.role) return null;
                 const isActive = location.pathname === item.path;

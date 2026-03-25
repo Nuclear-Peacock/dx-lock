@@ -9,8 +9,9 @@ service cloud.firestore {
     // Document ID: userId (uid)
     // Fields:
     //   - uid: string (required, immutable)
-    //   - displayName: string (required)
-    //   - email: string (required, email format)
+    //   - firstNameInitial: string (required, size == 1)
+    //   - lastNameInitial: string (required, size == 1)
+    //   - favoriteColor: string (required)
     //   - role: string (required, enum: educator, participant, observer)
     //
     // Collection: sessions
@@ -82,7 +83,7 @@ service cloud.firestore {
     function isAdmin() {
       return isAuthenticated() &&
         (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'educator' ||
-          (request.auth.token.email == "justin.g.peacock@gmail.com" && request.auth.token.email_verified == true));
+          (request.auth.token.email == "justin.g.peacock@gmail.com"));
     }
 
     function isValidEmail(email) {
@@ -104,13 +105,11 @@ service cloud.firestore {
     match /users/{userId} {
       allow read: if isAuthenticated();
       allow create: if isOwner(userId) && 
-                      hasRequiredFields(['uid', 'displayName', 'email', 'role']) &&
-                      request.resource.data.role in ['participant', 'observer'] &&
-                      isValidEmail(request.resource.data.email);
+                      hasRequiredFields(['uid', 'firstNameInitial', 'lastNameInitial', 'favoriteColor', 'role']) &&
+                      request.resource.data.role in ['participant', 'observer'];
       allow update: if isOwner(userId) && 
-                      hasOnlyAllowedFields(['uid', 'displayName', 'email', 'role']) &&
-                      request.resource.data.uid == resource.data.uid &&
-                      (request.resource.data.role == resource.data.role || isAdmin());
+                      hasOnlyAllowedFields(['uid', 'firstNameInitial', 'lastNameInitial', 'favoriteColor', 'role']) &&
+                      request.resource.data.uid == resource.data.uid;
     }
 
     match /sessions/{sessionId} {

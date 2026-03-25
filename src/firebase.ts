@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
+import { getAuth, signOut, signInAnonymously } from 'firebase/auth';
 import { getFirestore, doc, getDocFromServer } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 import firebaseConfig from '../firebase-applet-config.json';
@@ -9,7 +9,6 @@ const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
 export const auth = getAuth(app);
 export const storage = getStorage(app);
-export const googleProvider = new GoogleAuthProvider();
 
 // Error Handling Spec for Firestore Operations
 export enum OperationType {
@@ -75,7 +74,5 @@ async function testConnection() {
 }
 testConnection();
 
-export const loginWithGoogle = () => signInWithPopup(auth, googleProvider);
-export const loginWithRedirect = () => signInWithRedirect(auth, googleProvider);
 export const logout = () => signOut(auth);
-export { createUserWithEmailAndPassword, signInWithEmailAndPassword };
+export { signInAnonymously };

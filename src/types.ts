@@ -2,8 +2,9 @@ export type UserRole = 'educator' | 'participant' | 'observer';
 
 export interface UserProfile {
   uid: string;
-  displayName: string;
-  email: string;
+  firstNameInitial: string;
+  lastNameInitial: string;
+  favoriteColor: string;
   role: UserRole;
 }
 

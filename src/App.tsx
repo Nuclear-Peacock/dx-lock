@@ -13,7 +13,6 @@ import ParticipantDashboard from './pages/ParticipantDashboard';
 import ActiveGame from './pages/ActiveGame';
 import PresenterView from './pages/PresenterView';
 import Leaderboard from './pages/Leaderboard';
-import Login from './pages/Login';
 import Signup from './pages/Signup';
 import CaseEditor from './pages/CaseEditor';
 
@@ -34,15 +33,9 @@ export default function App() {
         if (userDoc.exists()) {
           setProfile(userDoc.data() as UserProfile);
         } else {
-          // Default profile for new users (though signup handles this, Google login might not)
-          const newProfile: UserProfile = {
-            uid: firebaseUser.uid,
-            displayName: firebaseUser.displayName || 'Anonymous',
-            email: firebaseUser.email || '',
-            role: 'participant',
-          };
-          await setDoc(doc(db, 'users', firebaseUser.uid), newProfile);
-          setProfile(newProfile);
+          // Profile should be created by signup flow. 
+          // If it doesn't exist, we don't auto-create it here anymore to avoid uninitialized profiles.
+          setProfile(null);
         }
       } else {
         setUser(null);
@@ -68,10 +61,9 @@ export default function App() {
         {user && <Navigation profile={profile} />}
         {user && <RoleSwitcher profile={profile} />}
         <Routes>
-          <Route path="/login" element={!user ? <Login /> : <Navigate to="/" />} />
-          <Route path="/signup" element={!user ? <Signup /> : <Navigate to="/" />} />
+          <Route path="/signup" element={!user || !profile ? <Signup /> : <Navigate to="/" />} />
           
-          <Route path="/" element={user ? <Home user={user} profile={profile} /> : <Navigate to="/login" />} />
+          <Route path="/" element={user && profile ? <Home user={user} profile={profile} /> : <Navigate to="/signup" />} />
           
           {/* Educator Routes */}
           <Route 
