@@ -1,20 +1,19 @@
+/// <reference types="vite/client" />
 import { initializeApp } from 'firebase/app';
 import { getAuth, signOut, signInAnonymously, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { getFirestore, doc, getDocFromServer } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 
-// Import the Firebase configuration as a fallback for local dev
-import firebaseConfigJson from '../firebase-applet-config.json';
-
 // Use environment variables (VITE_ prefix is required for client-side access in Vite)
+// Non-sensitive values are provided as fallbacks to ensure the app works in the preview
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || firebaseConfigJson.apiKey,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || firebaseConfigJson.authDomain,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || firebaseConfigJson.projectId,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || firebaseConfigJson.storageBucket,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || firebaseConfigJson.messagingSenderId,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || firebaseConfigJson.appId,
-  firestoreDatabaseId: import.meta.env.VITE_FIREBASE_FIRESTORE_DATABASE_ID || firebaseConfigJson.firestoreDatabaseId,
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyCykd7Uc5oTQJoH8EqG_uttHuJkXpPmITk",
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "dx-lock.firebaseapp.com",
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "dx-lock",
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "dx-lock.firebasestorage.app",
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "418045554330",
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:418045554330:web:da159f0332ff3cd4f6f923",
+  firestoreDatabaseId: import.meta.env.VITE_FIREBASE_FIRESTORE_DATABASE_ID || "ai-studio-ccf3a018-eff5-4588-a8e8-e912e8c9bc7d",
 };
 
 // Initialize Firebase SDK

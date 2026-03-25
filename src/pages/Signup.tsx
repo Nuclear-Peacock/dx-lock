@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { auth, signInAnonymously, db, signInWithPopup, googleProvider } from '../firebase';
+import { auth, signInAnonymously, db, signInWithPopup, googleProvider, handleFirestoreError, OperationType } from '../firebase';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { UserPlus, Lock, User, Palette, AlertCircle, Shield } from 'lucide-react';
 import { UserProfile } from '../types';
@@ -22,8 +22,15 @@ export default function Signup() {
         throw new Error('Unauthorized: Only authorized educators can sign in here.');
       }
 
-      const userDoc = await getDoc(doc(db, 'users', user.uid));
-      if (!userDoc.exists()) {
+      const path = `users/${user.uid}`;
+      let userDoc;
+      try {
+        userDoc = await getDoc(doc(db, 'users', user.uid));
+      } catch (err) {
+        handleFirestoreError(err, OperationType.GET, path);
+      }
+
+      if (!userDoc?.exists()) {
         const newProfile: UserProfile = {
           uid: user.uid,
           firstNameInitial: 'J',
@@ -32,12 +39,22 @@ export default function Signup() {
           displayAlias: 'Justin Peacock',
           role: 'educator',
         };
-        await setDoc(doc(db, 'users', user.uid), newProfile);
+        try {
+          await setDoc(doc(db, 'users', user.uid), newProfile);
+        } catch (err) {
+          handleFirestoreError(err, OperationType.WRITE, path);
+        }
       }
       navigate('/');
     } catch (err: any) {
       console.error(err);
-      setError(err.message || 'Failed to sign in as educator.');
+      if (err.code === 'auth/unauthorized-domain') {
+        setError('Unauthorized Domain: Please add this domain to your Firebase Authorized Domains.');
+      } else if (err.code === 'auth/popup-blocked') {
+        setError('Popup Blocked: Please allow popups for this site.');
+      } else {
+        setError(err.message || 'Failed to sign in as educator.');
+      }
     } finally {
       setLoading(false);
     }
